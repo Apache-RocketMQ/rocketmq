@@ -468,6 +468,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                 sendOK = true;
                 break;
 
+                
             // Failed
             case CREATE_MAPEDFILE_FAILED:
                 response.setCode(ResponseCode.SYSTEM_ERROR);
