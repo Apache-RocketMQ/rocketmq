@@ -27,6 +27,7 @@ public class PullConsumerTest {
         consumer.setNamesrvAddr("127.0.0.1:9876");
         consumer.start();
 
+        
         try {
             MessageQueue mq = new MessageQueue();
             mq.setQueueId(0);
