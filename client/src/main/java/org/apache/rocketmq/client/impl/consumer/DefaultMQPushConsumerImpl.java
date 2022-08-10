@@ -130,7 +130,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
     private long queueMaxSpanFlowControlTimes = 0;
 
     //10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
-    private int[] popDelayLevel = new int[] {10, 30, 60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 1200, 1800, 3600, 7200};
+    private int[] popDelayLevel = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
     private static final int MAX_POP_INVISIBLE_TIME = 300000;
     private static final int MIN_POP_INVISIBLE_TIME = 5000;
