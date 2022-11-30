@@ -334,9 +334,9 @@ public class BrokerConfig extends BrokerIdentity {
 
     private long syncControllerMetadataPeriod = 10 * 1000;
 
-    private long controllerHeartBeatTimeoutMills = 10 * 1000;
-
     private boolean validateSystemTopicWhenUpdateTopic = true;
+
+    private long controllerHeartBeatTimeoutMills = 10 * 1000;
 
     /**
      * It is an important basis for the controller to choose the broker master.
@@ -1613,22 +1613,6 @@ public class BrokerConfig extends BrokerIdentity {
 
     public void setTransactionOpBatchInterval(int transactionOpBatchInterval) {
         this.transactionOpBatchInterval = transactionOpBatchInterval;
-    }
-
-    public long getChannelExpiredTimeout() {
-        return channelExpiredTimeout;
-    }
-
-    public void setChannelExpiredTimeout(long channelExpiredTimeout) {
-        this.channelExpiredTimeout = channelExpiredTimeout;
-    }
-
-    public long getSubscriptionExpiredTimeout() {
-        return subscriptionExpiredTimeout;
-    }
-
-    public void setSubscriptionExpiredTimeout(long subscriptionExpiredTimeout) {
-        this.subscriptionExpiredTimeout = subscriptionExpiredTimeout;
     }
 
     public boolean isValidateSystemTopicWhenUpdateTopic() {
