@@ -1804,24 +1804,13 @@ public class CommitLog implements Swappable {
 
     }
 
-    interface FlushManager {
-        void start();
-
-        void shutdown();
-
-        void wakeUpFlush();
-
-        void handleDiskFlush(AppendMessageResult result, PutMessageResult putMessageResult, MessageExt messageExt);
-
-        CompletableFuture<PutMessageStatus> handleDiskFlush(AppendMessageResult result, MessageExt messageExt);
-    }
 
     class DefaultFlushManager implements FlushManager {
 
         private final FlushCommitLogService flushCommitLogService;
 
         //If TransientStorePool enabled, we must flush message to FileChannel at fixed periods
-        private final FlushCommitLogService commitLogService;
+        private final FlushCommitLogService commitRealTimeService;
 
         public DefaultFlushManager() {
             if (FlushDiskType.SYNC_FLUSH == CommitLog.this.defaultMessageStore.getMessageStoreConfig().getFlushDiskType()) {
@@ -1830,15 +1819,14 @@ public class CommitLog implements Swappable {
                 this.flushCommitLogService = new CommitLog.FlushRealTimeService();
             }
 
-            this.commitLogService = new CommitLog.CommitRealTimeService();
+            this.commitRealTimeService = new CommitLog.CommitRealTimeService();
         }
 
-        @Override
-        public void start() {
+        @Override public void start() {
             this.flushCommitLogService.start();
 
-            if (defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
-                this.commitLogService.start();
+            if (defaultMessageStore.isTransientStorePoolEnable()) {
+                this.commitRealTimeService.start();
             }
         }
 
@@ -1853,14 +1841,12 @@ public class CommitLog implements Swappable {
                     CompletableFuture<PutMessageStatus> flushOkFuture = request.future();
                     PutMessageStatus flushStatus = null;
                     try {
-                        flushStatus = flushOkFuture.get(CommitLog.this.defaultMessageStore.getMessageStoreConfig().getSyncFlushTimeout(),
-                            TimeUnit.MILLISECONDS);
+                        flushStatus = flushOkFuture.get(CommitLog.this.defaultMessageStore.getMessageStoreConfig().getSyncFlushTimeout(), TimeUnit.MILLISECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         //flushOK=false;
                     }
                     if (flushStatus != PutMessageStatus.PUT_OK) {
-                        log.error("do groupcommit, wait for flush failed, topic: " + messageExt.getTopic() + " tags: " + messageExt.getTags()
-                            + " client address: " + messageExt.getBornHostString());
+                        log.error("do groupcommit, wait for flush failed, topic: " + messageExt.getTopic() + " tags: " + messageExt.getTags() + " client address: " + messageExt.getBornHostString());
                         putMessageResult.setPutMessageStatus(PutMessageStatus.FLUSH_DISK_TIMEOUT);
                     }
                 } else {
@@ -1869,10 +1855,10 @@ public class CommitLog implements Swappable {
             }
             // Asynchronous flush
             else {
-                if (!CommitLog.this.defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
+                if (!CommitLog.this.defaultMessageStore.isTransientStorePoolEnable()) {
                     flushCommitLogService.wakeup();
                 } else {
-                    commitLogService.wakeup();
+                    commitRealTimeService.wakeup();
                 }
             }
         }
@@ -1894,10 +1880,10 @@ public class CommitLog implements Swappable {
             }
             // Asynchronous flush
             else {
-                if (!CommitLog.this.defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
+                if (!CommitLog.this.defaultMessageStore.isTransientStorePoolEnable()) {
                     flushCommitLogService.wakeup();
                 } else {
-                    commitLogService.wakeup();
+                    commitRealTimeService.wakeup();
                 }
                 return CompletableFuture.completedFuture(PutMessageStatus.PUT_OK);
             }
@@ -1910,9 +1896,15 @@ public class CommitLog implements Swappable {
         }
 
         @Override
+        public void wakeUpCommit() {
+            // now wake up commit log thread.
+            commitRealTimeService.wakeup();
+        }
+
+        @Override
         public void shutdown() {
-            if (defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
-                this.commitLogService.shutdown();
+            if (defaultMessageStore.isTransientStorePoolEnable()) {
+                this.commitRealTimeService.shutdown();
             }
 
             this.flushCommitLogService.shutdown();
@@ -1946,4 +1938,7 @@ public class CommitLog implements Swappable {
         this.getMappedFileQueue().cleanSwappedMap(forceCleanSwapIntervalMs);
     }
 
+    public FlushManager getFlushManager() {
+        return flushManager;
+    }
 }
