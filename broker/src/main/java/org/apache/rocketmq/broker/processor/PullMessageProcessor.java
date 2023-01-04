@@ -161,6 +161,10 @@ public class PullMessageProcessor implements NettyRequestProcessor {
 
             LogicQueueMappingItem currentItem = mappingContext.getCurrentItem();
 
+            if (currentItem == null) {
+                currentItem = TopicQueueMappingUtils.findLogicQueueMappingItem(mappingContext.getMappingItemList(), requestHeader.getQueueOffset(), true);
+            }
+
             LogicQueueMappingItem earlistItem = TopicQueueMappingUtils.findLogicQueueMappingItem(mappingContext.getMappingItemList(), 0L, true);
 
             assert currentItem.getLogicOffset() >= 0;
@@ -274,6 +278,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 return null;
             }
         } catch (Throwable t) {
+            LOGGER.warn("", t);
             return buildErrorResponse(ResponseCode.SYSTEM_ERROR, t.getMessage());
         }
     }
