@@ -1724,7 +1724,7 @@ public class BrokerController {
 
     protected void sendHeartbeat() {
         if (this.brokerConfig.isEnableControllerMode()) {
-            final List<String> controllerAddresses = this.replicasManager.getControllerAddresses();
+            final List<String> controllerAddresses = this.replicasManager.getAvailableControllerAddresses();
             for (String controllerAddress : controllerAddresses) {
                 if (StringUtils.isNotEmpty(controllerAddress)) {
                     this.brokerOuterAPI.sendHeartbeatToController(
