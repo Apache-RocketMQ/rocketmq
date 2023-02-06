@@ -1746,7 +1746,7 @@ public class BrokerController {
                         this.brokerConfig.getBrokerClusterName(),
                         this.getBrokerAddr(),
                         this.brokerConfig.getBrokerName(),
-                        this.brokerConfig.getBrokerId(),
+                        this.replicasManager.getBrokerId(),
                         this.brokerConfig.getSendHeartbeatTimeoutMillis(),
                         this.brokerConfig.isInBrokerContainer(), this.replicasManager.getLastEpoch(),
                         this.messageStore.getMaxPhyOffset(),
