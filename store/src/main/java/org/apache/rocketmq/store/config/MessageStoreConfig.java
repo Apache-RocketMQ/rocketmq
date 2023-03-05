@@ -38,12 +38,13 @@ public class MessageStoreConfig {
 
     //The directory in which the epochFile is kept
     @ImportantField
-    private String storePathEpochFile = System.getProperty("user.home") + File.separator + "store"
-        + File.separator + "epochFileCheckpoint";
+    private String storePathEpochFile = null;
 
-    private String storePathMetadata = storePathRootDir + File.separator + "metadata";
+    @ImportantField
+    private String storePathMetadata = null;
 
-    private String storePathTempMetadata = storePathRootDir + File.separator + "metadata-temp";
+    @ImportantField
+    private String storePathTempMetadata = null;
 
     private String readOnlyCommitLogStorePaths = null;
 
@@ -631,6 +632,9 @@ public class MessageStoreConfig {
     }
 
     public String getStorePathEpochFile() {
+        if (storePathEpochFile == null) {
+            return storePathRootDir + File.separator + "epochFileCheckpoint";
+        }
         return storePathEpochFile;
     }
 
@@ -639,6 +643,9 @@ public class MessageStoreConfig {
     }
 
     public String getStorePathMetadata() {
+        if (storePathMetadata == null) {
+            return storePathRootDir + File.separator + "metadata";
+        }
         return storePathMetadata;
     }
 
@@ -647,6 +654,9 @@ public class MessageStoreConfig {
     }
 
     public String getStorePathTempMetadata() {
+        if (storePathTempMetadata == null) {
+            return storePathRootDir + File.separator + "metadata-temp";
+        }
         return storePathTempMetadata;
     }
 
