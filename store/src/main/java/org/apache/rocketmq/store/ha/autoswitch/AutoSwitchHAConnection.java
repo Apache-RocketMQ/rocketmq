@@ -288,6 +288,8 @@ public class AutoSwitchHAConnection implements HAConnection {
                 AutoSwitchHAConnection.LOGGER.error("", e);
             }
 
+            flowMonitor.shutdown(true);
+
             AutoSwitchHAConnection.LOGGER.info(this.getServiceName() + " service end");
         }
 
@@ -725,6 +727,9 @@ public class AutoSwitchHAConnection implements HAConnection {
             } catch (IOException e) {
                 AutoSwitchHAConnection.LOGGER.error("", e);
             }
+
+            flowMonitor.shutdown(true);
+
             AutoSwitchHAConnection.LOGGER.info(this.getServiceName() + " service end");
         }
 
