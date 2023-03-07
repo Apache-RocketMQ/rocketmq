@@ -234,7 +234,7 @@ public class ReplicasManager {
 
                 this.masterEpoch = newMasterEpoch;
 
-                // Change sync state set
+                // Change SyncStateSet
                 final HashSet<Long> newSyncStateSet = new HashSet<>();
                 newSyncStateSet.add(this.brokerControllerId);
                 changeSyncStateSet(newSyncStateSet, syncStateSetEpoch);
@@ -272,7 +272,7 @@ public class ReplicasManager {
     public void changeToSlave(final String newMasterAddress, final int newMasterEpoch, long newMasterBrokerId) {
         synchronized (this) {
             if (newMasterEpoch > this.masterEpoch) {
-                LOGGER.info("Begin to change to slave, brokerName={}, brokerId={}, newMasterBrokerId={}, newMasterAddress, newMasterEpoch",
+                LOGGER.info("Begin to change to slave, brokerName={}, brokerId={}, newMasterBrokerId={}, newMasterAddress={}, newMasterEpoch={}",
                         this.brokerConfig.getBrokerName(), this.brokerControllerId, newMasterBrokerId, newMasterAddress, newMasterEpoch);
 
                 // Change record
@@ -313,7 +313,7 @@ public class ReplicasManager {
     private void changeSyncStateSet(final Set<Long> newSyncStateSet, final int newSyncStateSetEpoch) {
         synchronized (this) {
             if (newSyncStateSetEpoch > this.syncStateSetEpoch) {
-                LOGGER.info("Sync state set changed from {} to {}", this.syncStateSet, newSyncStateSet);
+                LOGGER.info("SyncStateSet changed from {} to {}", this.syncStateSet, newSyncStateSet);
                 this.syncStateSetEpoch = newSyncStateSetEpoch;
                 this.syncStateSet = new HashSet<>(newSyncStateSet);
                 this.haService.setSyncStateSet(newSyncStateSet);
@@ -624,7 +624,7 @@ public class ReplicasManager {
                             brokerElect();
                         }
                     } else if (newMasterEpoch == this.masterEpoch) {
-                        // Check if sync state set changed
+                        // Check if SyncStateSet changed
                         if (isMasterState()) {
                             changeSyncStateSet(syncStateSet.getSyncStateSet(), syncStateSet.getSyncStateSetEpoch());
                         }
@@ -696,7 +696,7 @@ public class ReplicasManager {
             this.checkSyncStateSetTaskFuture.cancel(false);
         }
         this.checkSyncStateSetTaskFuture = this.scheduledService.scheduleAtFixedRate(() -> {
-            final Set<Long> newSyncStateSet = this.haService.maybeShrinkInSyncStateSet();
+            final Set<Long> newSyncStateSet = this.haService.maybeShrinkSyncStateSet();
             newSyncStateSet.add(this.brokerControllerId);
             synchronized (this) {
                 if (this.syncStateSet != null) {
@@ -717,7 +717,7 @@ public class ReplicasManager {
                 changeSyncStateSet(result.getSyncStateSet(), result.getSyncStateSetEpoch());
             }
         } catch (final Exception e) {
-            LOGGER.error("Error happen when change sync state set, broker:{}, masterAddress:{}, masterEpoch:{}, oldSyncStateSet:{}, newSyncStateSet:{}, syncStateSetEpoch:{}",
+            LOGGER.error("Error happen when change SyncStateSet, broker:{}, masterAddress:{}, masterEpoch:{}, oldSyncStateSet:{}, newSyncStateSet:{}, syncStateSetEpoch:{}",
                     this.brokerConfig.getBrokerName(), this.masterAddress, this.masterEpoch, this.syncStateSet, newSyncStateSet, this.syncStateSetEpoch, e);
         }
     }
