@@ -184,7 +184,7 @@ public class AutoSwitchHAService extends DefaultHAService {
 
     public void waitingForAllCommit() {
         while (getDefaultMessageStore().remainHowManyDataToCommit() > 0) {
-            getDefaultMessageStore().getCommitLog().getFlushManager().wakeUpCommit();
+//            getDefaultMessageStore().getCommitLog().getFlushManager().wakeUpCommit();
             try {
                 Thread.sleep(100);
             } catch (Exception e) {

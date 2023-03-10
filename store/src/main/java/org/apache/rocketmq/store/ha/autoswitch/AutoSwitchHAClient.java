@@ -357,11 +357,11 @@ public class AutoSwitchHAClient extends ServiceThread implements HAClient {
         return this.socketChannel != null;
     }
 
-    private boolean transferFromMaster(HAConnectionState currentState) throws IOException {
+    private boolean transferFromMaster() throws IOException {
         boolean result;
         if (isTimeToReportOffset()) {
             LOGGER.info("Slave report current offset {}", this.currentReportedOffset);
-            result = reportSlaveOffset(currentState, this.currentReportedOffset);
+            result = reportSlaveOffset(HAConnectionState.TRANSFER, this.currentReportedOffset);
             if (!result) {
                 return false;
             }
@@ -374,7 +374,7 @@ public class AutoSwitchHAClient extends ServiceThread implements HAClient {
             return false;
         }
 
-        return this.reportSlaveMaxOffset(currentState);
+        return this.reportSlaveMaxOffset(HAConnectionState.TRANSFER);
     }
 
     @Override
@@ -403,7 +403,7 @@ public class AutoSwitchHAClient extends ServiceThread implements HAClient {
                         handshakeWithMaster();
                         continue;
                     case TRANSFER:
-                        if (!transferFromMaster(HAConnectionState.TRANSFER)) {
+                        if (!transferFromMaster()) {
                             closeMasterAndWait();
                             continue;
                         }
