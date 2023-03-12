@@ -261,6 +261,8 @@ public class ReplicasManager {
 
                 schedulingCheckSyncStateSet();
 
+                this.brokerController.getTopicConfigManager().getDataVersion().nextVersion(newMasterEpoch);
+
                 this.executorService.submit(() -> {
                     // Register broker to name-srv
                     try {
@@ -300,6 +302,8 @@ public class ReplicasManager {
 
                 // Notify ha service, change to slave
                 this.haService.changeToSlave(newMasterAddress, newMasterEpoch, brokerControllerId);
+
+                this.brokerController.getTopicConfigManager().getDataVersion().nextVersion(newMasterEpoch);
 
                 this.executorService.submit(() -> {
                     // Register broker to name-srv

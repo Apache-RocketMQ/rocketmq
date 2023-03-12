@@ -1547,8 +1547,6 @@ public class BrokerController {
             this.brokerPreOnlineService.start();
         }
 
-        //Init state version after messageStore initialized.
-        this.topicConfigManager.initStateVersion();
     }
 
     public void start() throws Exception {
