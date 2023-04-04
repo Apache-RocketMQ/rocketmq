@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.zip.Deflater;
@@ -38,12 +37,11 @@ import org.apache.rocketmq.logging.org.slf4j.Logger;
 import org.apache.rocketmq.logging.org.slf4j.LoggerFactory;
 import org.apache.rocketmq.remoting.protocol.DataVersion;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
-import org.apache.rocketmq.remoting.protocol.statictopic.TopicQueueMappingInfo;
 
 public class RegisterBrokerBody extends RemotingSerializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
-    private TopicConfigAndMappingSerializeWrapper topicConfigSerializeWrapper = new TopicConfigAndMappingSerializeWrapper();
+    private TopicConfigSerializeWrapper topicConfigSerializeWrapper = new TopicConfigSerializeWrapper();
     private List<String> filterServerList = new ArrayList<>();
     private static final long MINIMUM_TAKE_TIME_MILLISECOND = 50;
 
@@ -85,19 +83,19 @@ public class RegisterBrokerBody extends RemotingSerializable {
             // write filter server list json
             outputStream.write(buffer);
 
-            //write the topic queue mapping
-            Map<String, TopicQueueMappingInfo> topicQueueMappingInfoMap = topicConfigSerializeWrapper.getTopicQueueMappingInfoMap();
-            if (topicQueueMappingInfoMap == null) {
-                //as the placeholder
-                topicQueueMappingInfoMap = new ConcurrentHashMap<>();
-            }
-            outputStream.write(convertIntToByteArray(topicQueueMappingInfoMap.size()));
-            for (TopicQueueMappingInfo info: topicQueueMappingInfoMap.values()) {
-                buffer = JSON.toJSONString(info).getBytes(MixAll.DEFAULT_CHARSET);
-                outputStream.write(convertIntToByteArray(buffer.length));
-                // write filter server list json
-                outputStream.write(buffer);
-            }
+//            //write the topic queue mapping
+//            Map<String, TopicQueueMappingInfo> topicQueueMappingInfoMap = topicConfigSerializeWrapper.getTopicQueueMappingInfoMap();
+//            if (topicQueueMappingInfoMap == null) {
+//                //as the placeholder
+//                topicQueueMappingInfoMap = new ConcurrentHashMap<>();
+//            }
+//            outputStream.write(convertIntToByteArray(topicQueueMappingInfoMap.size()));
+//            for (TopicQueueMappingInfo info: topicQueueMappingInfoMap.values()) {
+//                buffer = JSON.toJSONString(info).getBytes(MixAll.DEFAULT_CHARSET);
+//                outputStream.write(convertIntToByteArray(buffer.length));
+//                // write filter server list json
+//                outputStream.write(buffer);
+//            }
 
             outputStream.finish();
             long takeTime = System.currentTimeMillis() - start;
@@ -152,17 +150,17 @@ public class RegisterBrokerBody extends RemotingSerializable {
 
         registerBrokerBody.setFilterServerList(filterServerList);
 
-        if (brokerVersion.ordinal() >= MQVersion.Version.V5_0_0.ordinal()) {
-            int topicQueueMappingNum = readInt(inflaterInputStream);
-            Map<String/* topic */, TopicQueueMappingInfo> topicQueueMappingInfoMap = new ConcurrentHashMap<>();
-            for (int i = 0; i < topicQueueMappingNum; i++) {
-                int mappingJsonLen = readInt(inflaterInputStream);
-                byte[] buffer = readBytes(inflaterInputStream, mappingJsonLen);
-                TopicQueueMappingInfo info = TopicQueueMappingInfo.decode(buffer, TopicQueueMappingInfo.class);
-                topicQueueMappingInfoMap.put(info.getTopic(), info);
-            }
-            registerBrokerBody.getTopicConfigSerializeWrapper().setTopicQueueMappingInfoMap(topicQueueMappingInfoMap);
-        }
+//        if (brokerVersion.ordinal() >= MQVersion.Version.V5_0_0.ordinal()) {
+//            int topicQueueMappingNum = readInt(inflaterInputStream);
+//            Map<String/* topic */, TopicQueueMappingInfo> topicQueueMappingInfoMap = new ConcurrentHashMap<>();
+//            for (int i = 0; i < topicQueueMappingNum; i++) {
+//                int mappingJsonLen = readInt(inflaterInputStream);
+//                byte[] buffer = readBytes(inflaterInputStream, mappingJsonLen);
+//                TopicQueueMappingInfo info = TopicQueueMappingInfo.decode(buffer, TopicQueueMappingInfo.class);
+//                topicQueueMappingInfoMap.put(info.getTopic(), info);
+//            }
+//            registerBrokerBody.getTopicConfigSerializeWrapper().setTopicQueueMappingInfoMap(topicQueueMappingInfoMap);
+//        }
 
         long takeTime = System.currentTimeMillis() - start;
         if (takeTime > MINIMUM_TAKE_TIME_MILLISECOND) {
@@ -197,11 +195,19 @@ public class RegisterBrokerBody extends RemotingSerializable {
         return byteBuffer.getInt();
     }
 
-    public TopicConfigAndMappingSerializeWrapper getTopicConfigSerializeWrapper() {
+//    public TopicConfigAndMappingSerializeWrapper getTopicConfigSerializeWrapper() {
+//        return topicConfigSerializeWrapper;
+//    }
+
+//    public void setTopicConfigSerializeWrapper(TopicConfigAndMappingSerializeWrapper topicConfigSerializeWrapper) {
+//        this.topicConfigSerializeWrapper = topicConfigSerializeWrapper;
+//    }
+
+    public TopicConfigSerializeWrapper getTopicConfigSerializeWrapper() {
         return topicConfigSerializeWrapper;
     }
 
-    public void setTopicConfigSerializeWrapper(TopicConfigAndMappingSerializeWrapper topicConfigSerializeWrapper) {
+    public void setTopicConfigSerializeWrapper(TopicConfigSerializeWrapper topicConfigSerializeWrapper) {
         this.topicConfigSerializeWrapper = topicConfigSerializeWrapper;
     }
 
