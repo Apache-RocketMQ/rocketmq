@@ -73,20 +73,20 @@ public class TopicConfigManager extends ConfigManager {
             topicConfig.setWriteQueueNums(1);
             this.topicConfigTable.put(topicConfig.getTopicName(), topicConfig);
         }
-        {
-            if (this.brokerController.getBrokerConfig().isAutoCreateTopicEnable()) {
-                String topic = TopicValidator.AUTO_CREATE_TOPIC_KEY_TOPIC;
-                TopicConfig topicConfig = new TopicConfig(topic);
-                TopicValidator.addSystemTopic(topic);
-                topicConfig.setReadQueueNums(this.brokerController.getBrokerConfig()
-                    .getDefaultTopicQueueNums());
-                topicConfig.setWriteQueueNums(this.brokerController.getBrokerConfig()
-                    .getDefaultTopicQueueNums());
-                int perm = PermName.PERM_INHERIT | PermName.PERM_READ | PermName.PERM_WRITE;
-                topicConfig.setPerm(perm);
-                this.topicConfigTable.put(topicConfig.getTopicName(), topicConfig);
-            }
-        }
+//        {
+//            if (this.brokerController.getBrokerConfig().isAutoCreateTopicEnable()) {
+//                String topic = TopicValidator.AUTO_CREATE_TOPIC_KEY_TOPIC;
+//                TopicConfig topicConfig = new TopicConfig(topic);
+//                TopicValidator.addSystemTopic(topic);
+//                topicConfig.setReadQueueNums(this.brokerController.getBrokerConfig()
+//                    .getDefaultTopicQueueNums());
+//                topicConfig.setWriteQueueNums(this.brokerController.getBrokerConfig()
+//                    .getDefaultTopicQueueNums());
+//                int perm = PermName.PERM_INHERIT | PermName.PERM_READ | PermName.PERM_WRITE;
+//                topicConfig.setPerm(perm);
+//                this.topicConfigTable.put(topicConfig.getTopicName(), topicConfig);
+//            }
+//        }
         {
             String topic = TopicValidator.RMQ_SYS_BENCHMARK_TOPIC;
             TopicConfig topicConfig = new TopicConfig(topic);
