@@ -17,8 +17,11 @@
 
 package org.apache.rocketmq.common.utils;
 
+import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import java.util.Enumeration;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.org.slf4j.Logger;
 import org.apache.rocketmq.logging.org.slf4j.LoggerFactory;
@@ -40,7 +43,7 @@ public class ServiceProvider {
      * JDK1.3+ <a href= "http://java.sun.com/j2se/1.3/docs/guide/jar/jar.html#Service%20Provider" > 'Service Provider'
      * specification</a>.
      */
-    public static final String PREFIX = "META-INF/service/";
+    public static final String PREFIX = "META-INF/rocketmq/";
     
     static {
         thisClassLoader = getClassLoader(ServiceProvider.class);
@@ -99,7 +102,48 @@ public class ServiceProvider {
         String fullName = PREFIX + clazz.getName();
         return load(fullName, clazz);
     }
-    
+
+    public static <T> List<T> loadDefault(Class<T> clazz) {
+        String fullPath = PREFIX + clazz.getName();
+        return load2(fullPath, clazz);
+    }
+
+    private static <T> List<T> load2(String fullPath, Class<T> clazz) {
+        ArrayList<T> result = new ArrayList<>();
+
+        ClassLoader loader = getContextClassLoader();
+        try {
+            Enumeration<URL> resources = loader.getResources(fullPath);
+
+            while (resources.hasMoreElements()) {
+                URL url = resources.nextElement();
+                try (InputStream inputStream = url.openStream()) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+                    String item;
+                    while ((item = reader.readLine()) != null) {
+                        Class<?> targetClazz = Class.forName(item.trim());
+
+                        if (clazz.isAssignableFrom(targetClazz)) {
+                            Class<T> temp = (Class<T>) targetClazz;
+                            T instance = temp.getDeclaredConstructor().newInstance();
+                            result.add(instance);
+                        }
+                    }
+
+                    reader.close();
+                } catch (Exception e) {
+                    LOG.error("load class:{} from url: {}, error.", clazz, url);
+                }
+            }
+
+        } catch (IOException e) {
+            LOG.error("find resources with path:{}, error", fullPath);
+        }
+
+        return result;
+    }
+
     public static <T> List<T> load(String name, Class<?> clazz) {
         LOG.info("Looking for a resource file of name [{}] ...", name);
         List<T> services = new ArrayList<>();

@@ -928,7 +928,7 @@ public class BrokerController {
             return;
         }
 
-        List<AccessValidator> accessValidators = ServiceProvider.load(AccessValidator.class);
+        List<AccessValidator> accessValidators = ServiceProvider.loadDefault(AccessValidator.class);
         if (accessValidators.isEmpty()) {
             LOG.info("ServiceProvider loaded no AccessValidator, using default org.apache.rocketmq.acl.plain.PlainAccessValidator");
             accessValidators.add(new PlainAccessValidator());
